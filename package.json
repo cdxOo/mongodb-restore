@@ -1,0 +1,33 @@
+{
+  "name": "@cdxoo/mongodb-restore",
+  "version": "0.0.1",
+  "description": "restore mongodb bson dumps",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx mocha --bail src/*.spec.js"
+  },
+  "author": "Jan Schwalbe",
+  "license": "MIT",
+  "keywords": [
+    "mongo",
+    "mongodb",
+    "mongorestore"
+  ],
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^7.1.1",
+    "mongodb-memory-server": "^6.5.1"
+  },
+  "dependencies": {
+    "bson": "^4.0.4",
+    "mongodb": "^3.5.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cdxOo/mongodb-restore.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cdxOo/mongodb-restore/issues"
+  },
+  "homepage": "https://github.com/cdxOo/mongodb-restore#readme"
+}
