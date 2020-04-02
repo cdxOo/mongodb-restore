@@ -1,24 +1,21 @@
-'use strict';
 var fs = require('fs'),
+    fspath = require('path'),
     MongoClient = require('mongodb').MongoClient,
-    BSON = require('bson');
+    restoreCollection = require('./restore-collection');
 
 module.exports = (options) => {
     checkOptions(options);
-    return doRestoreCollection(options);
+    return doRestoreDatabase(options);
 }
 
-var doRestoreCollection = async ({
+var doRestoreDatabase = async ({
     con,
     uri,
     database,
-    collection,
     from,
 
     clean = true,
-    limit,
 }) => {
-    var serverConnection;
     if (!con) {
         serverConnection = (await MongoClient.connect(
             uri,
@@ -29,44 +26,34 @@ var doRestoreCollection = async ({
         serverConnection = con;
     }
 
-    var dbCollection = (
-        serverConnection
-        .db(database)
-        .collection(collection)
-    );
-    if (clean) {
-        await dbCollection.deleteMany({});
-    }
-    
-    // FIXME: this will blow up on large collections
-    var buffer = fs.readFileSync(from);
-    var index = 0,
-        documents = [];
-    while (
-        buffer.length > index
-        && (!limit || limit > documents.length)
-    ) {
-        index = BSON.deserializeStream(
-            buffer,
-            index,
-            1,
-            documents,
-            documents.length
-        );
-    }
+    var bsonRX = /\.bson$/;
 
-    await dbCollection.insertMany(documents);
+    var collectionFiles = (
+        fs.readdirSync(from)
+        .filter(filename => bsonRX.test(filename))
+    );
+    
+    await Promise.all(
+        collectionFiles.map(filename => (
+            restoreCollection({
+                con: serverConnection,
+                database,
+                collection: filename.replace(bsonRX, ''),
+                from: fspath.join(from, filename),
+                clean
+            })
+        ))
+    );
 
     if (!con) {
         serverConnection.close()
     }
-};
+}
 
 var checkOptions = ({
     con,
     uri,
     database,
-    collection,
     from
 }) => {
     if (!con && !uri) {
@@ -79,10 +66,6 @@ var checkOptions = ({
 
     if (!database) {
         throw new Error('missing "database" option');
-    }
-
-    if (!collection) {
-        throw new Error('missing "collection" option');
     }
 
     if (!from) {
