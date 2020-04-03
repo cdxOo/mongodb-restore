@@ -2,7 +2,7 @@
   "name": "@cdxoo/mongodb-restore",
   "version": "0.0.1",
   "description": "restore mongodb bson dumps",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "npx mocha --bail src/*.spec.js"
   },
