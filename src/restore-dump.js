@@ -2,20 +2,19 @@
 var fs = require('fs'),
     fspath = require('path'),
     MongoClient = require('mongodb').MongoClient,
-    restoreCollection = require('./restore-collection');
+    restoreDatabase = require('./restore-database');
 
 module.exports = (options) => {
     checkOptions(options);
-    return doRestoreDatabase(options);
+    return doRestoreDump(options);
 }
 
-var doRestoreDatabase = async ({
+var doRestoreDump = async ({
     con,
     uri,
-    database,
     from,
 
-    clean = true,
+    clean = true
 }) => {
     var serverConnection;
     if (!con) {
@@ -28,25 +27,26 @@ var doRestoreDatabase = async ({
         serverConnection = con;
     }
 
-    var bsonRX = /\.bson$/;
-
-    var collectionFiles = (
+    var databases = (
         fs.readdirSync(from)
-        .filter(filename => bsonRX.test(filename))
+        .map(filename => ({
+            name: filename,
+            path: fspath.join(from, filename)
+        }))
+        .filter(it => fs.statSync(it.path).isDirectory())
     );
-    
+
     await Promise.all(
-        collectionFiles.map(filename => (
-            restoreCollection({
+        databases.map(({ name, path }) => (
+            restoreDatabase({
                 con: serverConnection,
-                database,
-                collection: filename.replace(bsonRX, ''),
-                from: fspath.join(from, filename),
+                database: name,
+                from: path,
                 clean
             })
         ))
     );
-
+        
     if (!con) {
         serverConnection.close()
     }
@@ -55,7 +55,6 @@ var doRestoreDatabase = async ({
 var checkOptions = ({
     con,
     uri,
-    database,
     from
 }) => {
     if (!con && !uri) {
@@ -64,10 +63,6 @@ var checkOptions = ({
 
     if (con && uri) {
         throw new Error('you cannot use both "uri" and "con" option');
-    }
-
-    if (!database) {
-        throw new Error('missing "database" option');
     }
 
     if (!from) {
