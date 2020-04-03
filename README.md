@@ -1,4 +1,4 @@
-# @cdxOo/mongodb-restore
+# @cdxoo/mongodb-restore
 
 Simple module to restore MongoDB dumps from BSON files.
 
