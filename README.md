@@ -50,10 +50,21 @@ await restore.dump({
     clean: true   // wether the collections should be cleaned before
                   // inserting the documents from the dump files
                   // optional; default = true
+    onCollectionExists: 'throw',
+                  // how to handle collections that already exist
+                  // on the server; when set to "throw" (default)
+                  // the restore will throw an error;
+                  // when set to "overwrite" the restore will proceed
+                  // and insert the dump data to the collection
+                  // (and remove existing items when clean == true)
+                  // optional, default: 'throw'
+                  // available options:
+                  //    'throw'
+                  //    'overwrite'
 });
 
 await retore.database({
-    con, uri, clean, // same as in dump()
+    con, uri, clean, onCollectionExists // same as in dump()
     
     database: 'my-database-name',
                   // name of the database that will be created
@@ -65,7 +76,12 @@ await retore.database({
 });
 
 await retore.collection({
-    con, uri, clean, database, // same as in database()
+    con,
+    uri,
+    clean,
+    onCollectionExists,
+    database,
+    // above are the same as in database()
     
     collection: 'my-collection-name',
                   // name of the collection that the documents
