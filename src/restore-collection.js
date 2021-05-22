@@ -86,6 +86,9 @@ var tryCreateCollection = async ({
                 throw new Error(`collection "${collection}" already exists; set onCollectionExists to "overwrite" to remove this error`);
             }
         }
+        else {
+            throw error;
+        }
     }
 }
 
