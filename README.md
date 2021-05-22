@@ -64,7 +64,7 @@ await retore.database({
                   // to restore
 });
 
-await retore.database({
+await retore.collection({
     con, uri, clean, database, // same as in database()
     
     collection: 'my-collection-name',
