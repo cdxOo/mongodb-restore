@@ -64,7 +64,7 @@ await restore.dump({
 });
 
 await retore.database({
-    con, uri, clean, onCollectionExists // same as in dump()
+    con, uri, clean, onCollectionExists, // same as in dump()
     
     database: 'my-database-name',
                   // name of the database that will be created
