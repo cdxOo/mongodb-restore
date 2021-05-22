@@ -1,17 +1,34 @@
 'use strict';
 var expect = require('chai').expect,
     fspath = require('path'),
-    Mongod = require('mongodb-memory-server').MongoMemoryServer,
-    { MongoClient, ObjectId } = require('mongodb'),
-    restore = require('./restore-collection');
+    { ObjectId } = require('mongodb');
+
+var {
+    initTestEnv,
+    findInCollection,
+} = require('./test-helpers');
+
+var restore = require('./restore-collection');
+
 
 describe('restore-collection', () => {
     
-    var server, uri, dbName, serverConnection;
+    var server,
+        uri,
+        dbName,
+
+        serverConnection,
+        dbHandle;
+
     beforeEach(async () => {
-        server = new Mongod();
-        await server.start();
-        ({ uri, dbName } = server.getInstanceInfo())
+        ({
+            server,
+            uri,
+            dbName,
+
+            serverConnection,
+            dbHandle,
+        } = await initTestEnv())
     });
 
     afterEach(async () => {
@@ -31,20 +48,12 @@ describe('restore-collection', () => {
                 '..', 'fixtures', 'restore-collection', 'foo.bson'
             )
         });
+     
+        var documents = await findInCollection({
+            dbHandle,
+            collection: 'foo'
+        })
         
-        serverConnection = await MongoClient.connect(
-            uri,
-            { useUnifiedTopology: true}
-        );
-        
-        var documents = await (
-            serverConnection
-            .db(dbName)
-            .collection('foo')
-            .find()
-            .toArray()
-        );
-
         expect(documents)
             .to.be.an('array')
             .with.length(2);
@@ -62,11 +71,6 @@ describe('restore-collection', () => {
     });
     
     it('restores fixtures to collection (existing con)', async () => {
-        serverConnection = await MongoClient.connect(
-            uri,
-            { useUnifiedTopology: true}
-        );
-        
         await restore({
             con: serverConnection,
             database: dbName,
@@ -77,14 +81,11 @@ describe('restore-collection', () => {
             )
         });
         
-        var documents = await (
-            serverConnection
-            .db(dbName)
-            .collection('foo')
-            .find()
-            .toArray()
-        );
-
+        var documents = await findInCollection({
+            dbHandle,
+            collection: 'foo'
+        })
+        
         expect(documents)
             .to.be.an('array')
             .with.length(2);
@@ -92,12 +93,6 @@ describe('restore-collection', () => {
     });
 
     it('creates empty collection when bson file is empty', async () => {
-
-        serverConnection = await MongoClient.connect(
-            uri,
-            { useUnifiedTopology: true}
-        );
-        
         await restore({
             con: serverConnection,
             database: dbName,
@@ -109,8 +104,7 @@ describe('restore-collection', () => {
         });
         
         var createdCollections = await (
-            serverConnection
-            .db(dbName)
+            dbHandle
             .listCollections()
             .toArray()
         );
@@ -122,14 +116,11 @@ describe('restore-collection', () => {
         expect(createdCollections[0].name).to.equal('empty');
         expect(createdCollections[0].type).to.equal('collection');
 
-        var documents = await (
-            serverConnection
-            .db(dbName)
-            .collection('empty')
-            .find()
-            .toArray()
-        );
-
+        var documents = await findInCollection({
+            dbHandle,
+            collection: 'empty'
+        })
+        
         expect(documents)
             .to.be.an('array')
             .with.length(0);
