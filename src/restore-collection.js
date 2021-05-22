@@ -34,7 +34,7 @@ var doRestoreCollection = async ({
         var dbHandle = serverConnection.db(database),
             dbCollection = dbHandle.collection(collection);
       
-        await maybeCreateCollection({
+        await tryCreateCollection({
             collection,
             onCollectionExists
         });
@@ -71,7 +71,7 @@ var doRestoreCollection = async ({
     }
 };
 
-var maybeCreateCollection = async ({
+var tryCreateCollection = async ({
     serverConnection,
     collection,
     onCollectionExists
