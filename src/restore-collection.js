@@ -77,19 +77,18 @@ var tryCreateCollection = async ({
     collection,
     onCollectionExists
 }) => {
-    var shouldBeStrict = (
-        onCollectionExists === 'overwrite'
-        ? false
-        : true
-    );
-    try {
-        await dbHandle.createCollection(collection, {
-            strict: shouldBeStrict
-        });
+    if (onCollectionExists === 'throw') {
+        var collections = await (
+            dbHandle
+            .listCollections()
+            .toArray()
+        );
+        if (collections.find(it => it.name === 'collection')) {
+            throw new Error(`collection "${collection}" already exists; set onCollectionExists to "overwrite" to remove this error`);
+        }
     }
-    catch (error) {
-        throw new Error(`collection "${collection}" already exists; set onCollectionExists to "overwrite" to remove this error`);
-    }
+
+    await dbHandle.createCollection(collection);
 }
 
 var checkOptions = ({
