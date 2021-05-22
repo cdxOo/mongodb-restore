@@ -131,25 +131,32 @@ describe('restore-collection', () => {
         })
     })
 
+
     describe('overwrite behavior', () => {
+
         it('throws on existing collection by default', async () => {
             await dbHandle.collection('foo').insertOne({ myprop: 'exists' });
 
-            await restore({
-                uri,
-                database: dbName,
-                collection: 'foo',
-                from: fspath.join(
-                    __dirname,
-                    '..', 'fixtures', 'restore-collection', 'foo.bson'
-                )
-            });
+            var error = undefined;
+            try {
+                await restore({
+                    uri,
+                    database: dbName,
+                    collection: 'foo',
+                    from: fspath.join(
+                        __dirname,
+                        '..', 'fixtures', 'restore-collection', 'foo.bson'
+                    )
+                });
+            }
+            catch (e) {
+                error = e;
+            }
 
-            var documents = await findInCollection({
-                dbHandle, collection: 'foo'
-            });
+            // FIXME: this might not be sufficient
+            expect(error).to.exist;
+        });
 
-            console.log(documents);
-        })
-    })
+    });
+
 });
