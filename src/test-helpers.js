@@ -3,8 +3,8 @@ var { MongoMemoryServer } = require('mongodb-memory-server');
 var { MongoClient } = require('mongodb');
 var { EJSON } = require('bson');
 
-var createServer = async () => {
-    var server = new MongoMemoryServer();
+var createServer = async (serverProps = {}) => {
+    var server = new MongoMemoryServer(serverProps);
     await server.start();
     
     var { uri, dbName } = server.getInstanceInfo();
@@ -39,8 +39,8 @@ var findInCollection = ({ dbHandle, collection, filter }) => {
     )
 }
 
-var initTestEnv = async () => {
-    var { server, uri, dbName } = await createServer();
+var initTestEnv = async (serverProps = {}) => {
+    var { server, uri, dbName } = await createServer(serverProps);
     
     var {
         serverConnection,

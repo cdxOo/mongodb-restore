@@ -1,20 +1,28 @@
 'use strict';
 var expect = require('chai').expect,
     fspath = require('path'),
-    Mongod = require('mongodb-memory-server').MongoMemoryServer,
-    { MongoClient, ObjectId } = require('mongodb'),
-    restore = require('./restore-database');
+    { ObjectId } = require('mongodb');
+
+var restore = require('./restore-database');
+
+var {
+    initTestEnv,
+    findInCollection,
+    ejson,
+} = require('./test-helpers');
 
 describe('restore-database', () => {
     
-    var dbName = 'db-1',
-        server, uri, serverConnection;
+    var server, uri, dbName, serverConnection, dbHandle;
     beforeEach(async () => {
-        server = new Mongod({
-            instance: { dbName }
-        });
-        await server.start();
-        ({ uri, dbName } = server.getInstanceInfo())
+        ({
+            server,
+            uri,
+            dbName,
+
+            serverConnection,
+            dbHandle,
+        } = await initTestEnv({ instance: { dbName: 'db-1' }}))
     });
 
     afterEach(async () => {
@@ -34,54 +42,37 @@ describe('restore-database', () => {
             )
         });
         
-        serverConnection = await MongoClient.connect(
-            uri,
-            { useUnifiedTopology: true}
-        );
+        var foo = await findInCollection({
+            dbHandle,
+            collection: 'foo'
+        })
         
-        var foo = await (
-            serverConnection
-            .db(dbName)
-            .collection('foo')
-            .find()
-            .toArray()
-        );
+        expect(ejson(foo)).to.eql(ejson([
+            {
+                _id: ObjectId('5e8621d8e0dddbe18c80492d'),
+                myprop: 'one',
+            },
+            {
+                _id: ObjectId('5e8621ede0dddbe18c80492e'),
+                myprop: 'two',
+            }
+        ]))
 
-        expect(foo)
-            .to.be.an('array')
-            .with.length(2);
-        
-        expect(
-            foo[0]._id.equals(ObjectId('5e8621d8e0dddbe18c80492d'))
-        ).to.equal(true)
-        expect(
-            foo[1]._id.equals(ObjectId('5e8621ede0dddbe18c80492e'))
-        ).to.equal(true)
+        var bar = await findInCollection({
+            dbHandle,
+            collection: 'bar',
+        });
 
-        expect(foo[0].myprop).to.equal("one");
-        expect(foo[1].myprop).to.equal("two");
-
-        var bar = await (
-            serverConnection
-            .db(dbName)
-            .collection('bar')
-            .find()
-            .toArray()
-        );
-
-        expect(bar)
-            .to.be.an('array')
-            .with.length(2);
-        
-        expect(
-            bar[0]._id.equals(ObjectId('5e86396fb2953ac1cc5dc524'))
-        ).to.equal(true)
-        expect(
-            bar[1]._id.equals(ObjectId('5e86396fb2953ac1cc5dc525'))
-        ).to.equal(true)
-
-        expect(bar[0].myprop).to.equal("three");
-        expect(bar[1].myprop).to.equal("four");
+        expect(ejson(bar)).to.eql(ejson([
+            {
+                _id: ObjectId('5e86396fb2953ac1cc5dc524'),
+                myprop: 'three',
+            },
+            {
+                _id: ObjectId('5e86396fb2953ac1cc5dc525'),
+                myprop: 'four',
+            }
+        ]))
 
     });
 
