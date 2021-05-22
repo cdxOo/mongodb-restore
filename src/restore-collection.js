@@ -22,18 +22,16 @@ var doRestoreCollection = async ({
     if (!con) {
         serverConnection = (await MongoClient.connect(
             uri,
-            { useUnifiedTopology: true}
+            { useUnifiedTopology: true }
         ));
     }
     else {
         serverConnection = con;
     }
 
-    var dbCollection = (
-        serverConnection
-        .db(database)
-        .collection(collection)
-    );
+    var dbHandle = serverConnection.db(database),
+        dbCollection = dbHandle.collection(collection);
+
     if (clean) {
         await dbCollection.deleteMany({});
     }
@@ -55,7 +53,12 @@ var doRestoreCollection = async ({
         );
     }
 
-    await dbCollection.insertMany(documents);
+    if (documents.length > 0) {
+        await dbCollection.insertMany(documents);
+    }
+    else {
+        await dbHandle.createCollection(collection);
+    }
 
     if (!con) {
         serverConnection.close()
