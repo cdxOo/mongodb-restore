@@ -30,41 +30,44 @@ var doRestoreCollection = async ({
         serverConnection = con;
     }
 
-    var dbHandle = serverConnection.db(database),
-        dbCollection = dbHandle.collection(collection);
-  
-    await maybeCreateCollection({
-        collection,
-        onCollectionExists
-    });
+    try {
+        var dbHandle = serverConnection.db(database),
+            dbCollection = dbHandle.collection(collection);
+      
+        await maybeCreateCollection({
+            collection,
+            onCollectionExists
+        });
 
-    if (clean) {
-        await dbCollection.deleteMany({});
-    }
-    
-    // FIXME: this will blow up on large collections
-    var buffer = fs.readFileSync(from);
-    var index = 0,
-        documents = [];
-    while (
-        buffer.length > index
-        && (!limit || limit > documents.length)
-    ) {
-        index = BSON.deserializeStream(
-            buffer,
-            index,
-            1,
-            documents,
-            documents.length
-        );
-    }
+        if (clean) {
+            await dbCollection.deleteMany({});
+        }
+        
+        // FIXME: this will blow up on large collections
+        var buffer = fs.readFileSync(from);
+        var index = 0,
+            documents = [];
+        while (
+            buffer.length > index
+            && (!limit || limit > documents.length)
+        ) {
+            index = BSON.deserializeStream(
+                buffer,
+                index,
+                1,
+                documents,
+                documents.length
+            );
+        }
 
-    if (documents.length > 0) {
-        await dbCollection.insertMany(documents);
+        if (documents.length > 0) {
+            await dbCollection.insertMany(documents);
+        }
     }
-
-    if (!con) {
-        serverConnection.close()
+    finally {
+        if (!con) {
+            serverConnection.close()
+        }
     }
 };
 
