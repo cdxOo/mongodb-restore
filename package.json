@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "bson": "^4.4.0",
-    "mongodb": "^3.6.8"
+    "mongodb": "3.6.6"
   },
   "repository": {
     "type": "git",
