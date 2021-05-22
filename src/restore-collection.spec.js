@@ -157,6 +157,42 @@ describe('restore-collection', () => {
             expect(error).to.exist;
         });
 
+        it('proceeds normally when "overwrite" is set', async () => {
+            await dbHandle.collection('foo').insertOne({ myprop: 'exists' });
+            
+            await restore({
+                uri,
+                database: dbName,
+                collection: 'foo',
+                from: fspath.join(
+                    __dirname,
+                    '..', 'fixtures', 'restore-collection', 'foo.bson'
+                ),
+                onCollectionExists: 'overwrite',
+            });
+            
+            var documents = await findInCollection({
+                dbHandle,
+                collection: 'foo'
+            })
+            
+            expect(documents)
+                .to.be.an('array')
+                .with.length(2);
+          
+            expect(ejson(documents)).to.eql(ejson([
+                {
+                    _id: ObjectId('5e8621d8e0dddbe18c80492d'),
+                    myprop: 'one',
+                },
+                {
+                    _id: ObjectId('5e8621ede0dddbe18c80492e'),
+                    myprop: 'two',
+                }
+            ]))
+
+        });
+
     });
 
 });

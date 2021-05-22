@@ -77,18 +77,16 @@ var tryCreateCollection = async ({
     collection,
     onCollectionExists
 }) => {
-    if (onCollectionExists === 'throw') {
-        var collections = await (
-            dbHandle
-            .listCollections()
-            .toArray()
-        );
-        if (collections.find(it => it.name === 'collection')) {
-            throw new Error(`collection "${collection}" already exists; set onCollectionExists to "overwrite" to remove this error`);
+    try {
+        await dbHandle.createCollection(collection);
+    }
+    catch (error) {
+        if (error.codeName === 'NamespaceExists') {
+            if (onCollectionExists !== 'overwrite') {
+                throw new Error(`collection "${collection}" already exists; set onCollectionExists to "overwrite" to remove this error`);
+            }
         }
     }
-
-    await dbHandle.createCollection(collection);
 }
 
 var checkOptions = ({
