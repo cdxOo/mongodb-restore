@@ -6,6 +6,7 @@ var expect = require('chai').expect,
 var {
     initTestEnv,
     findInCollection,
+    ejson,
 } = require('./test-helpers');
 
 var restore = require('./restore-collection');
@@ -57,16 +58,17 @@ describe('restore-collection', () => {
         expect(documents)
             .to.be.an('array')
             .with.length(2);
-        
-        expect(
-            documents[0]._id.equals(ObjectId('5e8621d8e0dddbe18c80492d'))
-        ).to.equal(true)
-        expect(
-            documents[1]._id.equals(ObjectId('5e8621ede0dddbe18c80492e'))
-        ).to.equal(true)
-
-        expect(documents[0].myprop).to.equal("one");
-        expect(documents[1].myprop).to.equal("two");
+      
+        expect(ejson(documents)).to.eql(ejson([
+            {
+                _id: ObjectId('5e8621d8e0dddbe18c80492d'),
+                myprop: 'one',
+            },
+            {
+                _id: ObjectId('5e8621ede0dddbe18c80492e'),
+                myprop: 'two',
+            }
+        ]))
 
     });
     

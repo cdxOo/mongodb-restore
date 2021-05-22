@@ -1,6 +1,7 @@
 'use strict';
 var { MongoMemoryServer } = require('mongodb-memory-server');
 var { MongoClient } = require('mongodb');
+var { EJSON } = require('bson');
 
 var createServer = async () => {
     var server = new MongoMemoryServer();
@@ -55,10 +56,15 @@ var initTestEnv = async () => {
     }
 }
 
+var ejson = (entity) => (
+    JSON.parse(EJSON.stringify(entity))
+);
+
 module.exports = {
     createServer,
     connectServer,
 
     initTestEnv,
     findInCollection,
+    ejson,
 }
