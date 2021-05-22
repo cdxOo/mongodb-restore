@@ -16,6 +16,7 @@ var doRestoreDatabase = async ({
     from,
 
     clean = true,
+    onCollectionExists = 'throw',
 }) => {
     var serverConnection;
     if (!con) {
@@ -35,6 +36,7 @@ var doRestoreDatabase = async ({
         .filter(filename => bsonRX.test(filename))
     );
     
+    // TODO: handle erroneous collection restores properly
     await Promise.all(
         collectionFiles.map(filename => (
             restoreCollection({
@@ -42,7 +44,9 @@ var doRestoreDatabase = async ({
                 database,
                 collection: filename.replace(bsonRX, ''),
                 from: fspath.join(from, filename),
-                clean
+
+                clean,
+                onCollectionExists,
             })
         ))
     );
@@ -56,7 +60,8 @@ var checkOptions = ({
     con,
     uri,
     database,
-    from
+    from,
+    onCollectionExists,
 }) => {
     if (!con && !uri) {
         throw new Error('neither "con" nor "uri" option was given');
@@ -72,5 +77,12 @@ var checkOptions = ({
 
     if (!from) {
         throw new Error('missing "from" option');
+    }
+    
+    if (
+        onCollectionExists
+        && !['throw', 'overwrite'].includes(onCollectionExists)
+    ) {
+        throw new Error('when set "onCollectionExists" should be either "throw" or "overwrite"');
     }
 }

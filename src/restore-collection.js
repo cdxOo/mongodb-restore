@@ -15,9 +15,9 @@ var doRestoreCollection = async ({
     collection,
     from,
 
-    onCollectionExists = 'throw',
-    clean = true,
     limit,
+    clean = true,
+    onCollectionExists = 'throw',
 }) => {
     var serverConnection;
     if (!con) {

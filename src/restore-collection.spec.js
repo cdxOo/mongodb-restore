@@ -56,10 +56,6 @@ describe('restore-collection', () => {
                 collection: 'foo'
             })
             
-            expect(documents)
-                .to.be.an('array')
-                .with.length(2);
-          
             expect(ejson(documents)).to.eql(ejson([
                 {
                     _id: ObjectId('5e8621d8e0dddbe18c80492d'),
@@ -89,10 +85,17 @@ describe('restore-collection', () => {
                 collection: 'foo'
             })
             
-            expect(documents)
-                .to.be.an('array')
-                .with.length(2);
-            
+            expect(ejson(documents)).to.eql(ejson([
+                {
+                    _id: ObjectId('5e8621d8e0dddbe18c80492d'),
+                    myprop: 'one',
+                },
+                {
+                    _id: ObjectId('5e8621ede0dddbe18c80492e'),
+                    myprop: 'two',
+                }
+            ]))
+
         });
 
         it('creates empty collection when bson file is empty', async () => {

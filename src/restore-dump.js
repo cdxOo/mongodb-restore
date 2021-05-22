@@ -14,7 +14,8 @@ var doRestoreDump = async ({
     uri,
     from,
 
-    clean = true
+    clean = true,
+    onCollectionExists = 'throw',
 }) => {
     var serverConnection;
     if (!con) {
@@ -36,13 +37,16 @@ var doRestoreDump = async ({
         .filter(it => fs.statSync(it.path).isDirectory())
     );
 
+    // TODO: handle erroneous database restores properly
     await Promise.all(
         databases.map(({ name, path }) => (
             restoreDatabase({
                 con: serverConnection,
                 database: name,
                 from: path,
-                clean
+
+                clean,
+                onCollectionExists,
             })
         ))
     );
@@ -55,7 +59,8 @@ var doRestoreDump = async ({
 var checkOptions = ({
     con,
     uri,
-    from
+    from,
+    onCollectionExists
 }) => {
     if (!con && !uri) {
         throw new Error('neither "con" nor "uri" option was given');
@@ -67,5 +72,12 @@ var checkOptions = ({
 
     if (!from) {
         throw new Error('missing "from" option');
+    }
+    
+    if (
+        onCollectionExists
+        && !['throw', 'overwrite'].includes(onCollectionExists)
+    ) {
+        throw new Error('when set "onCollectionExists" should be either "throw" or "overwrite"');
     }
 }
