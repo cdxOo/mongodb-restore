@@ -198,4 +198,22 @@ describe('restore-collection', () => {
 
     });
 
+    describe('restore performance', () => {
+        it ('has reasoanble performance for larger collection', async () => {
+        
+            var s = new Date().getTime();
+            await restore({
+                uri,
+                database: dbName,
+                collection: 'foo',
+                from: fspath.join(
+                    __dirname,
+                    '..', 'fixtures', 'restore-collection', 'large.bson'
+                ),
+            });
+            var e = new Date().getTime();
+            console.log(e-s);
+
+        })
+    });
 });
