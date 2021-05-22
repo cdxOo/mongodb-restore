@@ -14,13 +14,13 @@
     "mongorestore"
   ],
   "devDependencies": {
-    "chai": "^4.2.0",
-    "mocha": "^7.1.1",
-    "mongodb-memory-server": "^6.5.1"
+    "chai": "^4.3.4",
+    "mocha": "^8.4.0",
+    "mongodb-memory-server": "^6.9.6"
   },
   "dependencies": {
-    "bson": "^4.0.4",
-    "mongodb": "^3.5.5"
+    "bson": "^4.4.0",
+    "mongodb": "^3.6.8"
   },
   "repository": {
     "type": "git",
