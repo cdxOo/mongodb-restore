@@ -11,7 +11,8 @@
   "keywords": [
     "mongo",
     "mongodb",
-    "mongorestore"
+    "mongorestore",
+    "mongodump"
   ],
   "devDependencies": {
     "chai": "^4.3.4",
