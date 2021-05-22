@@ -47,7 +47,7 @@ await restore.dump({
                   // path to the server dump, contains sub-directories
                   // that themselves contain individual database
                   // dumps
-    clean: true   // wether the collections should be cleaned before
+    clean: true,   // wether the collections should be cleaned before
                   // inserting the documents from the dump files
                   // optional; default = true
     onCollectionExists: 'throw',
