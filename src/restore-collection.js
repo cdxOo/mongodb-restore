@@ -15,6 +15,7 @@ var doRestoreCollection = async ({
     collection,
     from,
 
+    onCollectionExists = 'throw',
     clean = true,
     limit,
 }) => {
@@ -31,6 +32,11 @@ var doRestoreCollection = async ({
 
     var dbHandle = serverConnection.db(database),
         dbCollection = dbHandle.collection(collection);
+  
+    await maybeCreateCollection({
+        collection,
+        onCollectionExists
+    });
 
     if (clean) {
         await dbCollection.deleteMany({});
@@ -56,21 +62,39 @@ var doRestoreCollection = async ({
     if (documents.length > 0) {
         await dbCollection.insertMany(documents);
     }
-    else {
-        await dbHandle.createCollection(collection);
-    }
 
     if (!con) {
         serverConnection.close()
     }
 };
 
+var maybeCreateCollection = async ({
+    serverConnection,
+    collection,
+    onCollectionExists
+}) => {
+    var shouldBeStrict = (
+        onCollectionExists === 'overwrite'
+        ? false
+        : true
+    );
+    try {
+        await dbHandle.createCollection(collection, {
+            strict: shouldBeStrict
+        });
+    }
+    catch (error) {
+        throw new Error(`collection "${collection}" already exists; set onCollectionExists to "overwrite" to remove this error`);
+    }
+}
+
 var checkOptions = ({
     con,
     uri,
     database,
     collection,
-    from
+    from,
+    onCollectionExists,
 }) => {
     if (!con && !uri) {
         throw new Error('neither "con" nor "uri" option was given');
@@ -90,5 +114,12 @@ var checkOptions = ({
 
     if (!from) {
         throw new Error('missing "from" option');
+    }
+
+    if (
+        onCollectionExists
+        && !['throw', 'overwrite'].includes(onCollectionExists)
+    ) {
+        throw new Error('when set "onCollectionExists" should be either "throw" or "overwrite"');
     }
 }
