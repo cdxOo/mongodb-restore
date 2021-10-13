@@ -1,12 +1,13 @@
 'use strict';
-var fs = require('fs'),
-    BSON = require('bson');
+var fs = require('fs');
 
 var {
     maybeConnectServer,
     internalRestoreBuffer,
     tryCreateCollection
 } = require('./utils');
+
+var restoreBuffer = require('./restore-buffer');
 
 module.exports = (options) => {
     checkOptions(options);
@@ -24,36 +25,20 @@ var doRestoreCollection = async ({
     clean = true,
     onCollectionExists = 'throw',
 }) => {
-    var serverConnection = await maybeConnectServer({ con, uri });
+    // FIXME: this will blow up on large collections
+    var buffer = fs.readFileSync(from);
 
-    try {
-        var dbHandle = serverConnection.db(database),
-            dbCollection = dbHandle.collection(collection);
-      
-        await tryCreateCollection({
-            dbHandle,
-            collection,
-            onCollectionExists
-        });
+    await restoreBuffer({
+        con,
+        uri,
+        database,
+        collection,
+        buffer,
 
-        if (clean) {
-            await dbCollection.deleteMany({});
-        }
-        
-        // FIXME: this will blow up on large collections
-        var buffer = fs.readFileSync(from);
-
-        await internalRestoreBuffer({
-            collectionHandle: dbCollection,
-            buffer,
-            limit
-        });
-    }
-    finally {
-        if (!con) {
-            serverConnection.close()
-        }
-    }
+        limit,
+        clean,
+        onCollectionExists,
+    });
 };
 
 
