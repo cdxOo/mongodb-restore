@@ -32,6 +32,15 @@ await restore.collection({
     collection: 'foo',
     from: '../dumps/mydump/db-1/foo.bson'
 });
+
+// restore from a buffer containing bson
+var myBuffer = fs.readFileSync('./foo.bson')
+await restore.buffer({
+    uri,
+    database: 'my-database-name',
+    collection: 'foo',
+    from: myBuffer
+});
 ```
 
 ## Parameters

@@ -33,7 +33,7 @@ var doRestoreCollection = async ({
         uri,
         database,
         collection,
-        buffer,
+        from: buffer,
 
         limit,
         clean,

@@ -16,7 +16,7 @@ var doRestoreBuffer = async ({
     database,
     collection,
 
-    buffer,
+    from,
     //chunked = false,
     
     limit,
@@ -41,7 +41,7 @@ var doRestoreBuffer = async ({
         
         await internalRestoreBuffer({
             collectionHandle: dbCollection,
-            buffer,
+            buffer: from,
             limit
         });
     }
@@ -57,7 +57,7 @@ var checkOptions = ({
     uri,
     database,
     collection,
-    buffer,
+    from,
 }) => {
     if (!con && !uri) {
         throw new Error('neither "con" nor "uri" option was given');
@@ -75,7 +75,10 @@ var checkOptions = ({
         throw new Error('missing "collection" option');
     }
 
-    if (!buffer) {
-        throw new Error('missing "buffer" option');
+    if (!from) {
+        throw new Error('missing "from" option');
+    }
+    else if (!Buffer.isBuffer(from)) {
+        throw new Error('value of "from" option must be a buffer');
     }
 }
