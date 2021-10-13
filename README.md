@@ -96,11 +96,27 @@ await restore.collection({
                   // name of the collection that the documents
                   // will be restored into
     from: '../dumps/mydump/db-1/foo.bson',
-                  // bson file containingt the documents
+                  // bson file containing the documents
                   // to be restored
     limit: 100,   // optionally you can choose to not
                   // restore all the documents but just
                   // the first e.g. 100
                   // optional; default = no limit
+});
+
+await restore.buffer({
+    con,
+    uri,
+    clean,
+    onCollectionExists,
+    database,
+    collection,
+    limit
+    // above are the same as in collection()
+    
+    from: myBuffer,
+                  // a buffer with bson documents that was
+                  // created somehere in advance
+                  // e.g. by fs.readFileSync()
 });
 ```
