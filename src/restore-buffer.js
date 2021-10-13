@@ -22,6 +22,7 @@ var doRestoreBuffer = async ({
     limit,
     clean = true,
     onCollectionExists = 'throw',
+    transformDocuments,
 }) => {
     var serverConnection = await maybeConnectServer({ con, uri });
     
@@ -42,7 +43,8 @@ var doRestoreBuffer = async ({
         await internalRestoreBuffer({
             collectionHandle: dbCollection,
             buffer: from,
-            limit
+            limit,
+            transformDocuments,
         });
     }
     finally {

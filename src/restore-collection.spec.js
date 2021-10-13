@@ -200,7 +200,7 @@ describe('restore-collection', () => {
     });
 
     describe('restore performance', () => {
-        it ('has reasoanble performance for larger collection', async () => {
+        it('has reasoanble performance for larger collection', async () => {
         
             var s = new Date().getTime();
             await restore({
@@ -217,4 +217,46 @@ describe('restore-collection', () => {
 
         })
     });
+
+    describe('transform documents', () => {
+        it('can perform transformed restore', async () => {
+            var transformDocuments = (doc) => ({
+                ...doc,
+                baz: `bazed ${doc.myprop}`
+            });
+            
+            await restore({
+                uri,
+                database: dbName,
+                collection: 'foo',
+                from: fspath.join(
+                    __dirname,
+                    '..', 'fixtures', 'restore-collection', 'foo.bson'
+                ),
+                transformDocuments
+            });
+            
+            var documents = await findInCollection({
+                dbHandle,
+                collection: 'foo'
+            })
+            
+            expect(documents)
+                .to.be.an('array')
+                .with.length(2);
+          
+            expect(ejson(documents)).to.eql(ejson([
+                {
+                    _id: ObjectId('5e8621d8e0dddbe18c80492d'),
+                    myprop: 'one',
+                    baz: 'bazed one',
+                },
+                {
+                    _id: ObjectId('5e8621ede0dddbe18c80492e'),
+                    myprop: 'two',
+                    baz: 'bazed two',
+                }
+            ]))
+        });
+    })
 });

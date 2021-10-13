@@ -24,6 +24,7 @@ var doRestoreCollection = async ({
     limit,
     clean = true,
     onCollectionExists = 'throw',
+    transformDocuments,
 }) => {
     // FIXME: this will blow up on large collections
     var buffer = fs.readFileSync(from);
@@ -38,6 +39,7 @@ var doRestoreCollection = async ({
         limit,
         clean,
         onCollectionExists,
+        transformDocuments,
     });
 };
 

@@ -7,6 +7,7 @@ var internalRestoreBuffer = async ({
     buffer,
     limit,
     // chunked = false
+    transformDocuments,
 }) => {
     var index = 0,
         documents = [];
@@ -21,6 +22,10 @@ var internalRestoreBuffer = async ({
             documents,
             documents.length
         );
+    }
+
+    if (transformDocuments) {
+        documents = documents.map(transformDocuments);
     }
 
     if (documents.length > 0) {

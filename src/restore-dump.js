@@ -17,6 +17,7 @@ var doRestoreDump = async ({
 
     clean = true,
     onCollectionExists = 'throw',
+    transformDocuments
 }) => {
     var serverConnection = await maybeConnectServer({ con, uri });
 
@@ -31,16 +32,23 @@ var doRestoreDump = async ({
 
     // TODO: handle erroneous database restores properly
     await Promise.all(
-        databases.map(({ name, path }) => (
-            restoreDatabase({
+        databases.map(({ name, path }) => {
+            var wrappedTransform = undefined;
+            if (transformDocuments) {
+                wrappedTransform = (doc, info = {}) => (
+                    transformDocuments(doc, { ...info, database: name })
+                );
+            }
+            return restoreDatabase({
                 con: serverConnection,
                 database: name,
                 from: path,
 
                 clean,
                 onCollectionExists,
+                transformDocuments: wrappedTransform
             })
-        ))
+        })
     );
         
     if (!con) {

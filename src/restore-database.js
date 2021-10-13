@@ -18,6 +18,7 @@ var doRestoreDatabase = async ({
 
     clean = true,
     onCollectionExists = 'throw',
+    transformDocuments,
 }) => {
     var serverConnection = await maybeConnectServer({ con, uri });
     var bsonRX = /\.bson$/;
@@ -29,17 +30,25 @@ var doRestoreDatabase = async ({
     
     // TODO: handle erroneous collection restores properly
     await Promise.all(
-        collectionFiles.map(filename => (
-            restoreCollection({
+        collectionFiles.map(filename => {
+            var collection = filename.replace(bsonRX, '');
+            var wrappedTransform = undefined;
+            if (transformDocuments) {
+                wrappedTransform = (doc, info = {}) => (
+                    transformDocuments(doc, { ...info, collection })
+                );
+            }
+            return restoreCollection({
                 con: serverConnection,
                 database,
-                collection: filename.replace(bsonRX, ''),
+                collection,
                 from: fspath.join(from, filename),
 
                 clean,
                 onCollectionExists,
+                transformDocuments: wrappedTransform
             })
-        ))
+        })
     );
 
     if (!con) {
