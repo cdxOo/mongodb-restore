@@ -1,8 +1,9 @@
 'use strict';
 var fs = require('fs'),
     fspath = require('path'),
-    MongoClient = require('mongodb').MongoClient,
     restoreCollection = require('./restore-collection');
+
+var { maybeConnectServer } = require('./utils');
 
 module.exports = (options) => {
     checkOptions(options);
@@ -18,17 +19,7 @@ var doRestoreDatabase = async ({
     clean = true,
     onCollectionExists = 'throw',
 }) => {
-    var serverConnection;
-    if (!con) {
-        serverConnection = (await MongoClient.connect(
-            uri,
-            { useUnifiedTopology: true }
-        ));
-    }
-    else {
-        serverConnection = con;
-    }
-
+    var serverConnection = await maybeConnectServer({ con, uri });
     var bsonRX = /\.bson$/;
 
     var collectionFiles = (

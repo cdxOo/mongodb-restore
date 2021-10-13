@@ -10,6 +10,7 @@ var {
 } = require('./test-helpers');
 
 var restore = require('./restore-collection');
+var errors = require('./errors');
 
 
 describe('restore-collection', () => {
@@ -156,8 +157,8 @@ describe('restore-collection', () => {
                 error = e;
             }
 
-            // FIXME: this might not be sufficient
             expect(error).to.exist;
+            expect(error).to.be.instanceOf(errors.CollectionExists);
         });
 
         it('proceeds normally when "overwrite" is set', async () => {
@@ -212,7 +213,7 @@ describe('restore-collection', () => {
                 ),
             });
             var e = new Date().getTime();
-            console.log(e-s);
+            //console.log(e-s);
 
         })
     });

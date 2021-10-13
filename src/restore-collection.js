@@ -1,7 +1,12 @@
 'use strict';
 var fs = require('fs'),
-    MongoClient = require('mongodb').MongoClient,
     BSON = require('bson');
+
+var {
+    maybeConnectServer,
+    internalRestoreBuffer,
+    tryCreateCollection
+} = require('./utils');
 
 module.exports = (options) => {
     checkOptions(options);
@@ -19,16 +24,7 @@ var doRestoreCollection = async ({
     clean = true,
     onCollectionExists = 'throw',
 }) => {
-    var serverConnection;
-    if (!con) {
-        serverConnection = (await MongoClient.connect(
-            uri,
-            { useUnifiedTopology: true }
-        ));
-    }
-    else {
-        serverConnection = con;
-    }
+    var serverConnection = await maybeConnectServer({ con, uri });
 
     try {
         var dbHandle = serverConnection.db(database),
@@ -46,24 +42,12 @@ var doRestoreCollection = async ({
         
         // FIXME: this will blow up on large collections
         var buffer = fs.readFileSync(from);
-        var index = 0,
-            documents = [];
-        while (
-            buffer.length > index
-            && (!limit || limit > documents.length)
-        ) {
-            index = BSON.deserializeStream(
-                buffer,
-                index,
-                1,
-                documents,
-                documents.length
-            );
-        }
 
-        if (documents.length > 0) {
-            await dbCollection.insertMany(documents);
-        }
+        await internalRestoreBuffer({
+            collectionHandle: dbCollection,
+            buffer,
+            limit
+        });
     }
     finally {
         if (!con) {
@@ -72,25 +56,6 @@ var doRestoreCollection = async ({
     }
 };
 
-var tryCreateCollection = async ({
-    dbHandle,
-    collection,
-    onCollectionExists
-}) => {
-    try {
-        await dbHandle.createCollection(collection);
-    }
-    catch (error) {
-        if (error.codeName === 'NamespaceExists') {
-            if (onCollectionExists !== 'overwrite') {
-                throw new Error(`collection "${collection}" already exists; set onCollectionExists to "overwrite" to remove this error`);
-            }
-        }
-        else {
-            throw error;
-        }
-    }
-}
 
 var checkOptions = ({
     con,
