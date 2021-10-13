@@ -2,6 +2,9 @@
   "name": "@cdxoo/mongodb-restore",
   "version": "2.0.0-alpha.0",
   "description": "restore mongodb bson dumps",
+  "engines": {
+    "node": ">=6.4.0"
+  },
   "main": "src/index.js",
   "scripts": {
     "test": "npx mocha --bail src/*.spec.js"
