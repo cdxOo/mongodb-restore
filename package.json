@@ -23,8 +23,10 @@
     "mongodb-memory-server": "^6.9.6"
   },
   "dependencies": {
-    "bson": "^4.7.2",
-    "mongodb": "~3.7.4"
+    "bson": "^4.7.2"
+  },
+  "peerDependencies": {
+    "mongodb": "4.x"
   },
   "repository": {
     "type": "git",
