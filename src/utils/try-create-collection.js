@@ -2,11 +2,7 @@
 var verifyCollectionsDontExist = require('./verify-collections-dont-exist');
 
 var tryCreateCollection = async (bag) => {
-    var {
-        dbHandle,
-        collection,
-        onCollectionExists
-    } = bag;
+    var { dbHandle, collection, onCollectionExists } = bag;
 
     var doesntExist = await verifyCollectionsDontExist({
         dbHandle,

@@ -14,18 +14,20 @@ module.exports = (options) => {
     return doRestoreCollection(options);
 }
 
-var doRestoreCollection = async ({
-    con,
-    uri,
-    database,
-    collection,
-    from,
+var doRestoreCollection = async (bag) => {
+    var {
+        con,
+        uri,
+        database,
+        collection,
+        from,
 
-    limit,
-    clean = true,
-    onCollectionExists = 'throw',
-    transformDocuments,
-}) => {
+        limit,
+        clean = true,
+        onCollectionExists = 'throw',
+        transformDocuments,
+    } = bag;
+
     // FIXME: this will blow up on large collections
     var buffer = fs.readFileSync(from);
 
@@ -44,14 +46,16 @@ var doRestoreCollection = async ({
 };
 
 
-var checkOptions = ({
-    con,
-    uri,
-    database,
-    collection,
-    from,
-    onCollectionExists,
-}) => {
+var checkOptions = (bag) => {
+    var {
+        con,
+        uri,
+        database,
+        collection,
+        from,
+        onCollectionExists,
+    } = bag;
+
     if (!con && !uri) {
         throw new Error('neither "con" nor "uri" option was given');
     }

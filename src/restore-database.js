@@ -77,13 +77,15 @@ var doRestoreDatabase = async (bag) => {
     }
 }
 
-var checkOptions = ({
-    con,
-    uri,
-    database,
-    from,
-    onCollectionExists,
-}) => {
+var checkOptions = (bag) => {
+    var {
+        con,
+        uri,
+        database,
+        from,
+        onCollectionExists,
+    } = bag;
+
     if (!con && !uri) {
         throw new Error('neither "con" nor "uri" option was given');
     }

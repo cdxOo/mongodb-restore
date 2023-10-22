@@ -1,7 +1,7 @@
 'use strict';
-var fs = require('fs'),
-    fspath = require('path'),
-    restoreDatabase = require('./restore-database');
+var fs = require('fs');
+var fspath = require('path');
+var restoreDatabase = require('./restore-database');
 
 var { maybeConnectServer } = require('./utils');
 
@@ -61,12 +61,14 @@ var doRestoreDump = async (bag) => {
     }
 }
 
-var checkOptions = ({
-    con,
-    uri,
-    from,
-    onCollectionExists
-}) => {
+var checkOptions = (bag) => {
+    var {
+        con,
+        uri,
+        from,
+        onCollectionExists
+    } = bag;
+
     if (!con && !uri) {
         throw new Error('neither "con" nor "uri" option was given');
     }

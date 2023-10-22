@@ -1,16 +1,18 @@
 'use strict';
 var BSON = require('bson');
 
-var internalRestoreBuffer = async ({
-    collectionHandle,
+var internalRestoreBuffer = async (bag) => {
+    var {
+        collectionHandle,
 
-    buffer,
-    limit,
-    // chunked = false
-    transformDocuments,
-}) => {
-    var index = 0,
-        documents = [];
+        buffer,
+        limit,
+        // chunked = false
+        transformDocuments,
+    } = bag;
+
+    var index = 0;
+    var documents = [];
     while (
         buffer.length > index
         && (!limit || limit > documents.length)
