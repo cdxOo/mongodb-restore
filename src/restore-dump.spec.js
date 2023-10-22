@@ -1,7 +1,7 @@
 'use strict';
-var expect = require('chai').expect,
-    fspath = require('path'),
-    { ObjectId } = require('mongodb');
+var { expect } = require('chai');
+var fspath = require('path');
+var { ObjectId } = require('mongodb');
 
 var {
     initTestEnv,
@@ -10,6 +10,7 @@ var {
 } = require('./test-helpers');
 
 var restore = require('./restore-dump');
+var errors = require('./errors');
 
 
 describe('restore-dump', () => {
@@ -93,22 +94,33 @@ describe('restore-dump', () => {
 
     describe('overwrite behavior', () => {
        
-        // TODO: handle this case properly
-        it.skip('throws on existing collection by default', async () => {
+        it('throws on existing collection by default', async () => {
             await (
                 serverConnection
                 .db('db-1')
                 .collection('foo')
                 .insertOne({ myprop: 'exists' })
             );
+         
+            var error = undefined;
+            try {
+                await restore({
+                    uri,
+                    from: fspath.join(
+                        __dirname,
+                        '..', 'fixtures', 'restore-dump', dump
+                    )
+                });
+            }
+            catch (e) {
+                error = e;
+            }
             
-            await restore({
-                uri,
-                from: fspath.join(
-                    __dirname,
-                    '..', 'fixtures', 'restore-dump', dump
-                )
-            });
+            expect(error).to.exist;
+            expect(error).to.be.instanceOf(errors.CollectionsExist);
+            expect(error.collections).to.eql([
+                'foo' // FIXME: should include db name?
+            ])
         });
 
         it('proceeds normally when "overwrite" is set', async () => {
