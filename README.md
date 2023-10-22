@@ -10,7 +10,7 @@ Simple module to restore MongoDB dumps from BSON files.
 
 ## Resources
 
-* [Changelog](https://github.com/cdxOo/mongodb-restore/blob/1.1.2-maintenance/CHANGELOG.md)
+* [Changelog](https://github.com/cdxOo/mongodb-restore/blob/1.x/CHANGELOG.md)
 
 
 
