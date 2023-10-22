@@ -18,13 +18,13 @@
     "mongodump"
   ],
   "devDependencies": {
-    "chai": "^4.3.4",
-    "mocha": "^9.1.2",
+    "chai": "^4.3.10",
+    "mocha": "^10.2.0",
     "mongodb-memory-server": "^6.9.6"
   },
   "dependencies": {
-    "bson": "^4.4.0",
-    "mongodb": "~3.6.9"
+    "bson": "^4.7.2",
+    "mongodb": "~3.7.4"
   },
   "repository": {
     "type": "git",

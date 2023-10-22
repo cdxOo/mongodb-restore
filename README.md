@@ -2,10 +2,18 @@
 
 Simple module to restore MongoDB dumps from BSON files.
 
+
 ## Installation
 
     npm install --save @cdxoo/mongodb-restore
-    
+
+
+## Resources
+
+* [Changelog](https://github.com/cdxOo/mongodb-restore/blob/1.1.2-maintenance/CHANGELOG.md)
+
+
+
 ## Usage
 
 ```javascript
@@ -120,3 +128,8 @@ await restore.buffer({
                   // e.g. by fs.readFileSync()
 });
 ```
+
+
+## LICENSE
+
+[MIT](LICENSE)
