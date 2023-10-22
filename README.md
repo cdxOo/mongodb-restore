@@ -78,10 +78,16 @@ await restore.dump({
                   // available options:
                   //    'throw'
                   //    'overwrite'
+    transformDocuments: (doc, { collection, database }) => {
+        var transformed = doStuff(doc);
+        return transformed;
+    },            // transform the documents while restoring them
 });
 
 await retore.database({
-    con, uri, clean, onCollectionExists, // same as in dump()
+    // same as in dump()
+    con, uri, clean, onCollectionExists, transformDocuments
+    //
     
     database: 'my-database-name',
                   // name of the database that will be created
@@ -93,12 +99,14 @@ await retore.database({
 });
 
 await restore.collection({
+    // same as in database()
     con,
     uri,
     clean,
     onCollectionExists,
+    transformDocuments,
     database,
-    // above are the same as in database()
+    //
     
     collection: 'my-collection-name',
                   // name of the collection that the documents
@@ -113,14 +121,16 @@ await restore.collection({
 });
 
 await restore.buffer({
+    // same as in collection()
     con,
     uri,
     clean,
     onCollectionExists,
+    transformDocuments,
     database,
     collection,
     limit
-    // above are the same as in collection()
+    //
     
     from: myBuffer,
                   // a buffer with bson documents that was
