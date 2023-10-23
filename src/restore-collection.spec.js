@@ -158,7 +158,10 @@ describe('restore-collection', () => {
             }
 
             expect(error).to.exist;
-            expect(error).to.be.instanceOf(errors.CollectionExists);
+            expect(error).to.be.instanceOf(errors.CollectionsExist);
+            expect(error.collections).to.eql([
+                'foo' // FIXME: should include db name?
+            ])
         });
 
         it('proceeds normally when "overwrite" is set', async () => {

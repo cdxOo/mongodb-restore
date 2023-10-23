@@ -10,20 +10,22 @@ module.exports = (options) => {
     return doRestoreBuffer(options);
 }
 
-var doRestoreBuffer = async ({
-    con,
-    uri,
-    database,
-    collection,
+var doRestoreBuffer = async (bag) => {
+    var {
+        con,
+        uri,
+        database,
+        collection,
 
-    from,
-    //chunked = false,
+        from,
+        //chunked = false,
+        
+        limit,
+        clean = true,
+        onCollectionExists = 'throw',
+        transformDocuments,
+    } = bag;
     
-    limit,
-    clean = true,
-    onCollectionExists = 'throw',
-    transformDocuments,
-}) => {
     var serverConnection = await maybeConnectServer({ con, uri });
     
     try {
@@ -54,13 +56,15 @@ var doRestoreBuffer = async ({
     }
 }
 
-var checkOptions = ({
-    con,
-    uri,
-    database,
-    collection,
-    from,
-}) => {
+var checkOptions = (bag) => {
+    var {
+        con,
+        uri,
+        database,
+        collection,
+        from,
+    } = bag;
+
     if (!con && !uri) {
         throw new Error('neither "con" nor "uri" option was given');
     }

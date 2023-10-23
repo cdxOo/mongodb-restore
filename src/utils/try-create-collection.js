@@ -1,26 +1,16 @@
 'use strict';
-var { ReadPreference } = require('mongodb');
-var { CollectionExists } = require('../errors');
+var verifyCollectionsDontExist = require('./verify-collections-dont-exist');
 
-var tryCreateCollection = async ({
-    dbHandle,
-    collection,
-    onCollectionExists
-}) => {
-    // see: node-mongodb-native (v3.6.9)
-    //      /lib/operations/create_collection:76
-    var existing = await (
-        dbHandle
-        .listCollections({ name: collection })
-        .setReadPreference(ReadPreference.PRIMARY)
-        .toArray()
-    );
-    if (existing.length > 0) {
-        if (onCollectionExists !== 'overwrite') {
-            throw new CollectionExists({ collection });
-        }
-    }
-    else {
+var tryCreateCollection = async (bag) => {
+    var { dbHandle, collection, onCollectionExists } = bag;
+
+    var doesntExist = await verifyCollectionsDontExist({
+        dbHandle,
+        collections: [ collection ],
+        onCollectionExists
+    })
+    
+    if (doesntExist) {
         await dbHandle.createCollection(collection);
     }
 }

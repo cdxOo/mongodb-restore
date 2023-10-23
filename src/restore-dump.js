@@ -1,7 +1,7 @@
 'use strict';
-var fs = require('fs'),
-    fspath = require('path'),
-    restoreDatabase = require('./restore-database');
+var fs = require('fs');
+var fspath = require('path');
+var restoreDatabase = require('./restore-database');
 
 var { maybeConnectServer } = require('./utils');
 
@@ -10,15 +10,17 @@ module.exports = (options) => {
     return doRestoreDump(options);
 }
 
-var doRestoreDump = async ({
-    con,
-    uri,
-    from,
+var doRestoreDump = async (bag) => {
+    var {
+        con,
+        uri,
+        from,
 
-    clean = true,
-    onCollectionExists = 'throw',
-    transformDocuments
-}) => {
+        clean = true,
+        onCollectionExists = 'throw',
+        transformDocuments
+    } = bag;
+
     var serverConnection = await maybeConnectServer({ con, uri });
 
     var databases = (
@@ -30,38 +32,43 @@ var doRestoreDump = async ({
         .filter(it => fs.statSync(it.path).isDirectory())
     );
 
-    // TODO: handle erroneous database restores properly
-    await Promise.all(
-        databases.map(({ name, path }) => {
-            var wrappedTransform = undefined;
-            if (transformDocuments) {
-                wrappedTransform = (doc, info = {}) => (
-                    transformDocuments(doc, { ...info, database: name })
-                );
-            }
-            return restoreDatabase({
-                con: serverConnection,
-                database: name,
-                from: path,
+    try {
+        // TODO: handle erroneous database restores properly
+        await Promise.all(
+            databases.map(({ name, path }) => {
+                var wrappedTransform = undefined;
+                if (transformDocuments) {
+                    wrappedTransform = (doc, info = {}) => (
+                        transformDocuments(doc, { ...info, database: name })
+                    );
+                }
+                return restoreDatabase({
+                    con: serverConnection,
+                    database: name,
+                    from: path,
 
-                clean,
-                onCollectionExists,
-                transformDocuments: wrappedTransform
+                    clean,
+                    onCollectionExists,
+                    transformDocuments: wrappedTransform
+                })
             })
-        })
-    );
-        
-    if (!con) {
-        serverConnection.close()
+        );
+    }
+    finally {
+        if (!con) {
+            serverConnection.close()
+        }
     }
 }
 
-var checkOptions = ({
-    con,
-    uri,
-    from,
-    onCollectionExists
-}) => {
+var checkOptions = (bag) => {
+    var {
+        con,
+        uri,
+        from,
+        onCollectionExists
+    } = bag;
+
     if (!con && !uri) {
         throw new Error('neither "con" nor "uri" option was given');
     }

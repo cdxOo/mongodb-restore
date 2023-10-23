@@ -1,16 +1,18 @@
 class RestoreError extends Error {};
 
-class CollectionExists extends RestoreError {
-    constructor ({ collection } = {}) {
+class CollectionsExist extends RestoreError {
+    constructor (bag = {}) {
+        var { collections } = bag;
         super(
-            `collection "${collection}" already exists;` +
+            `collections [ ${collections.join(',')} ] already exist;` +
             ` set onCollectionExists to "overwrite" to remove this error`
         );
-        this.name = 'RestoreError.CollectionExists';
+        this.name = 'RestoreError.CollectionsExist';
+        this.collections = collections;
     }
 }
 
 module.exports = {
     RestoreError,
-    CollectionExists
+    CollectionsExist
 }

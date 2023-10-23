@@ -1,68 +1,91 @@
 'use strict';
-var fs = require('fs'),
-    fspath = require('path'),
-    restoreCollection = require('./restore-collection');
+var fs = require('fs');
+var fspath = require('path');
+var restoreCollection = require('./restore-collection');
 
-var { maybeConnectServer } = require('./utils');
+var {
+    maybeConnectServer,
+    verifyCollectionsDontExist,
+} = require('./utils');
 
 module.exports = (options) => {
     checkOptions(options);
     return doRestoreDatabase(options);
 }
 
-var doRestoreDatabase = async ({
-    con,
-    uri,
-    database,
-    from,
+var doRestoreDatabase = async (bag) => {
+    var {
+        con,
+        uri,
+        database,
+        from,
 
-    clean = true,
-    onCollectionExists = 'throw',
-    transformDocuments,
-}) => {
-    var serverConnection = await maybeConnectServer({ con, uri });
+        clean = true,
+        onCollectionExists = 'throw',
+        transformDocuments,
+    } = bag;
+    
     var bsonRX = /\.bson$/;
 
-    var collectionFiles = (
+    var serverConnection = await maybeConnectServer({ con, uri });
+    var dbHandle = serverConnection.db(database);
+
+    var collections = (
         fs.readdirSync(from)
         .filter(filename => bsonRX.test(filename))
+        .map(filename => ({
+            filename,
+            mongoname: filename.replace(bsonRX, ''),
+        }))
     );
-    
-    // TODO: handle erroneous collection restores properly
-    await Promise.all(
-        collectionFiles.map(filename => {
-            var collection = filename.replace(bsonRX, '');
-            var wrappedTransform = undefined;
-            if (transformDocuments) {
-                wrappedTransform = (doc, info = {}) => (
-                    transformDocuments(doc, { ...info, collection })
-                );
-            }
-            return restoreCollection({
-                con: serverConnection,
-                database,
-                collection,
-                from: fspath.join(from, filename),
 
-                clean,
-                onCollectionExists,
-                transformDocuments: wrappedTransform
+    try {
+        await verifyCollectionsDontExist({
+            dbHandle,
+            collections: collections.map(it => it.mongoname),
+            onCollectionExists,
+        });
+
+        await Promise.all(
+            collections.map(({ filename, mongoname }) => {
+                var wrappedTransform = undefined;
+                if (transformDocuments) {
+                    wrappedTransform = (doc, info = {}) => (
+                        transformDocuments(doc, {
+                            ...info,
+                            collection: mongoname
+                        })
+                    );
+                }
+                return restoreCollection({
+                    con: serverConnection,
+                    database,
+                    collection: mongoname,
+                    from: fspath.join(from, filename),
+
+                    clean,
+                    onCollectionExists,
+                    transformDocuments: wrappedTransform
+                })
             })
-        })
-    );
-
-    if (!con) {
-        serverConnection.close()
+        );
+    }
+    finally {
+        if (!con) {
+            serverConnection.close()
+        }
     }
 }
 
-var checkOptions = ({
-    con,
-    uri,
-    database,
-    from,
-    onCollectionExists,
-}) => {
+var checkOptions = (bag) => {
+    var {
+        con,
+        uri,
+        database,
+        from,
+        onCollectionExists,
+    } = bag;
+
     if (!con && !uri) {
         throw new Error('neither "con" nor "uri" option was given');
     }
