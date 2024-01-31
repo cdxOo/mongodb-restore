@@ -25,6 +25,7 @@ var doRestoreCollection = async (bag) => {
         limit,
         clean = true,
         onCollectionExists = 'throw',
+        filterDocuments,
         transformDocuments,
     } = bag;
 
@@ -41,6 +42,8 @@ var doRestoreCollection = async (bag) => {
         limit,
         clean,
         onCollectionExists,
+
+        filterDocuments,
         transformDocuments,
     });
 };

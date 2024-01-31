@@ -23,6 +23,8 @@ var doRestoreBuffer = async (bag) => {
         limit,
         clean = true,
         onCollectionExists = 'throw',
+
+        filterDocuments,
         transformDocuments,
     } = bag;
     
@@ -46,6 +48,7 @@ var doRestoreBuffer = async (bag) => {
             collectionHandle: dbCollection,
             buffer: from,
             limit,
+            filterDocuments,
             transformDocuments,
         });
     }

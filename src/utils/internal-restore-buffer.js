@@ -8,6 +8,7 @@ var internalRestoreBuffer = async (bag) => {
         buffer,
         limit,
         // chunked = false
+        filterDocuments,
         transformDocuments,
     } = bag;
 
@@ -17,15 +18,22 @@ var internalRestoreBuffer = async (bag) => {
         buffer.length > index
         && (!limit || limit > documents.length)
     ) {
+        var tmp = [];
         index = BSON.deserializeStream(
-            buffer,
-            index,
-            1,
-            documents,
-            documents.length
+            buffer, // bsonBuffer
+            index,  // deserializationStartIndex,
+            1,      // numberOfDocuments
+            tmp,    // targetArray
+            0,      // targetArrayStartIndex,
+            // {}   // options
         );
+        documents.push(...(
+            filterDocuments
+            ? tmp.filter(filterDocuments)
+            : tmp
+        ));
     }
-
+    
     if (transformDocuments) {
         documents = documents.map(transformDocuments);
     }
