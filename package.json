@@ -1,6 +1,6 @@
 {
   "name": "@cdxoo/mongodb-restore",
-  "version": "2.0.0-alpha.4",
+  "version": "2.0.0",
   "description": "restore mongodb bson dumps",
   "engines": {
     "node": ">=14"
