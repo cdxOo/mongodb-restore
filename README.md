@@ -1,6 +1,6 @@
 # @cdxoo/mongodb-restore
 
-Simple module to restore MongoDB dumps from BSON files.
+Simple pure js module to restore MongoDB dumps from BSON files. No extra tools required (i.e. mongo-tools).
 
 
 ## Installation
