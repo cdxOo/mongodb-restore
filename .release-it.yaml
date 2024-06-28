@@ -1,0 +1,12 @@
+hooks:
+  'before:init':
+    - 'npm test'
+git:
+  commitMessage: "chore(release): v${version}"
+  requireCommits: false
+github:
+  release: false
+  #releaseName: "${version}"
+  #draft: true
+npm:
+  release: true

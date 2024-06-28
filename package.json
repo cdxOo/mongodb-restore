@@ -1,13 +1,17 @@
 {
   "name": "@cdxoo/mongodb-restore",
-  "version": "2.0.0-alpha.3",
+  "version": "2.0.0",
   "description": "restore mongodb bson dumps",
   "engines": {
     "node": ">=14"
   },
   "main": "src/index.js",
   "scripts": {
-    "test": "npx mocha --bail src/*.spec.js"
+    "test": "npx mocha --bail src/*.spec.js",
+    "release:dry": "npx release-it --dry-run --no-npm",
+    "release:alpha": "release-it --preRelease=alpha",
+    "release:beta": "release-it --preRelease=beta",
+    "release": "release-it"
   },
   "author": "Jan Schwalbe",
   "license": "MIT",
@@ -18,15 +22,14 @@
     "mongodump"
   ],
   "devDependencies": {
-    "chai": "^4.3.10",
-    "mocha": "^10.2.0",
-    "mongodb-memory-server": "^6.9.6"
+    "chai": "^4.4.1",
+    "mocha": "^10.5.2",
+    "mongodb-memory-server": "^6.9.6",
+    "release-it": "^17.4.0"
   },
   "dependencies": {
-    "bson": "^4.7.2"
-  },
-  "peerDependencies": {
-    "mongodb": "4.x"
+    "bson": "^4.7.2",
+    "mongodb": "^4.17.2"
   },
   "repository": {
     "type": "git",

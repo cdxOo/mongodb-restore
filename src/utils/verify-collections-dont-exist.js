@@ -5,12 +5,14 @@ var { CollectionsExist } = require('../errors');
 var verifyCollectionsDontExist = async (bag) => {
     var { dbHandle, collections, onCollectionExists } = bag;
     
-    // see: node-mongodb-native (v3.6.9)
-    //      /lib/operations/create_collection:76
+    // see: node-mongodb-native (v4.17.1)
+    //      /src/operations/options_operation.ts:30
     var existing = await (
         dbHandle
-        .listCollections({ name: { $in: collections }})
-        .withReadPreference(ReadPreference.PRIMARY)
+        .listCollections(
+            { name: { $in: collections }},
+            { readPreference: ReadPreference.PRIMARY }
+        )
         .toArray()
     );
 

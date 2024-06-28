@@ -218,9 +218,62 @@ describe('restore-collection', () => {
             var e = new Date().getTime();
             //console.log(e-s);
 
+        }),
+        it('has reasoanble performance for larger collection with filter', async () => {
+        
+            var s = new Date().getTime();
+            await restore({
+                uri,
+                database: dbName,
+                collection: 'foo',
+                from: fspath.join(
+                    __dirname,
+                    '..', 'fixtures', 'restore-collection', 'large.bson'
+                ),
+                filter: (it) => (
+                    it.pin.startsWith('18')
+                )
+            });
+            var e = new Date().getTime();
+            //console.log(e-s);
+
         })
     });
 
+    describe('filter documents', () => {
+        it('can perform filtered restore', async () => {
+            var filterDocuments = (doc) => (
+                doc.myprop === 'two'
+            );
+            
+            await restore({
+                uri,
+                database: dbName,
+                collection: 'foo',
+                from: fspath.join(
+                    __dirname,
+                    '..', 'fixtures', 'restore-collection', 'foo.bson'
+                ),
+                filterDocuments
+            });
+            
+            var documents = await findInCollection({
+                dbHandle,
+                collection: 'foo'
+            })
+            
+            expect(documents)
+                .to.be.an('array')
+                .with.length(1);
+          
+            expect(ejson(documents)).to.eql(ejson([
+                {
+                    _id: ObjectId('5e8621ede0dddbe18c80492e'),
+                    myprop: 'two',
+                }
+            ]))
+        });
+    })
     describe('transform documents', () => {
         it('can perform transformed restore', async () => {
             var transformDocuments = (doc) => ({
