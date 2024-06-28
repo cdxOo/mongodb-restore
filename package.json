@@ -15,13 +15,13 @@
     "mongodump"
   ],
   "devDependencies": {
-    "chai": "^4.3.10",
-    "mocha": "^10.2.0",
+    "chai": "^4.4.1",
+    "mocha": "^10.5.2",
     "mongodb-memory-server": "^6.9.6"
   },
   "dependencies": {
     "bson": "^4.7.2",
-    "mongodb": "~3.7.4"
+    "mongodb": "^3.7.4"
   },
   "repository": {
     "type": "git",
