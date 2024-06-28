@@ -1,4 +1,4 @@
-2.0.0 / 2023-10-22
+2.0.0 / 2024-06-28
 ==================
 
   * BREAKING: required mongodb driver version is now 4.x
@@ -7,7 +7,7 @@
   * FEATURE: can now restore bson buffers directly
   * FEATURE: can now transform documents while restoring
   * FIX: when restoring multiple collections we check if none of the
-    collections before restoring anything
+    collections exist before restoring anything
 
 
 1.2.0 / 2023-10-20
