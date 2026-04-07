@@ -22,10 +22,10 @@
     "mongodump"
   ],
   "devDependencies": {
-    "chai": "^4.4.1",
-    "mocha": "^10.5.2",
+    "chai": "^4.5.0",
+    "mocha": "^10.8.2",
     "mongodb-memory-server": "^6.9.6",
-    "release-it": "^17.4.0"
+    "release-it": "^17.11.0"
   },
   "dependencies": {
     "bson": "^4.7.2",
